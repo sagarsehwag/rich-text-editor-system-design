@@ -1,15 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-
-interface SelectionState {
-  type: string;
-  anchorNode: string;
-  anchorOffset: string;
-  focusNode: string;
-  focusOffset: string;
-  backwards: string;
-}
+import React, { useCallback, useEffect, useRef } from 'react';
 
 function getNodeDescription(node: Node | null): string {
   if (!node) return 'null';
@@ -40,57 +31,59 @@ function isSelectionBackwards(selection: Selection): boolean {
   return (position & Node.DOCUMENT_POSITION_PRECEDING) !== 0;
 }
 
+// Directly update a DOM element's text content without triggering React re-renders.
+// This mirrors the vanilla JS approach and avoids selection loss from reconciliation.
+function updateElement(el: HTMLElement | null, value: string) {
+  if (!el) return;
+  if (el.textContent !== value) {
+    el.textContent = value;
+    el.classList.add('changed');
+    setTimeout(() => el.classList.remove('changed'), 300);
+  }
+}
+
 export default function SelectionInspector() {
   const editorRef = useRef<HTMLDivElement>(null);
-  const [selState, setSelState] = useState<SelectionState>({
-    type: '"None"',
-    anchorNode: 'null',
-    anchorOffset: '0',
-    focusNode: 'null',
-    focusOffset: '0',
-    backwards: 'false',
-  });
-  const [changed, setChanged] = useState<Record<string, boolean>>({});
+  const typeRef = useRef<HTMLSpanElement>(null);
+  const anchorNodeRef = useRef<HTMLSpanElement>(null);
+  const anchorOffsetRef = useRef<HTMLSpanElement>(null);
+  const focusNodeRef = useRef<HTMLSpanElement>(null);
+  const focusOffsetRef = useRef<HTMLSpanElement>(null);
+  const backwardsRef = useRef<HTMLSpanElement>(null);
 
   const updateSelectionState = useCallback(() => {
     const selection = window.getSelection();
+
     if (!selection || selection.rangeCount === 0) {
-      setSelState({
-        type: '"None"',
-        anchorNode: 'null',
-        anchorOffset: '0',
-        focusNode: 'null',
-        focusOffset: '0',
-        backwards: 'false',
-      });
+      updateElement(typeRef.current, '"None"');
+      updateElement(anchorNodeRef.current, 'null');
+      updateElement(anchorOffsetRef.current, '0');
+      updateElement(focusNodeRef.current, 'null');
+      updateElement(focusOffsetRef.current, '0');
+      updateElement(backwardsRef.current, 'false');
       return;
     }
 
     const type = selection.isCollapsed ? '"Caret"' : '"Range"';
     const backwards = isSelectionBackwards(selection);
 
-    const newState: SelectionState = {
-      type,
-      anchorNode: getNodeDescription(selection.anchorNode),
-      anchorOffset: selection.anchorOffset.toString(),
-      focusNode: getNodeDescription(selection.focusNode),
-      focusOffset: selection.focusOffset.toString(),
-      backwards: backwards.toString(),
-    };
+    updateElement(typeRef.current, type);
+    updateElement(anchorNodeRef.current, getNodeDescription(selection.anchorNode));
+    updateElement(anchorOffsetRef.current, selection.anchorOffset.toString());
+    updateElement(focusNodeRef.current, getNodeDescription(selection.focusNode));
+    updateElement(focusOffsetRef.current, selection.focusOffset.toString());
+    updateElement(backwardsRef.current, backwards.toString());
+  }, []);
 
-    setSelState((prev) => {
-      const changedKeys: Record<string, boolean> = {};
-      (Object.keys(newState) as (keyof SelectionState)[]).forEach((key) => {
-        if (prev[key] !== newState[key]) {
-          changedKeys[key] = true;
-        }
-      });
-      if (Object.keys(changedKeys).length > 0) {
-        setChanged(changedKeys);
-        setTimeout(() => setChanged({}), 300);
-      }
-      return newState;
-    });
+  // Set up the editor's initial HTML content via ref, not dangerouslySetInnerHTML,
+  // so React never tries to reconcile the contentEditable children.
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (editor && !editor.hasChildNodes()) {
+      editor.innerHTML =
+        '<p>The quick <strong>brown fox</strong> jumps over the <em>lazy dog</em>.</p>' +
+        '<p>Try selecting text across multiple elements to see how selection works!</p>';
+    }
   }, []);
 
   useEffect(() => {
@@ -171,15 +164,6 @@ export default function SelectionInspector() {
     }
   };
 
-  const stateRows: { label: string; key: keyof SelectionState; highlight?: boolean }[] = [
-    { label: 'type:', key: 'type' },
-    { label: 'anchorNode:', key: 'anchorNode' },
-    { label: 'anchorOffset:', key: 'anchorOffset' },
-    { label: 'focusNode:', key: 'focusNode' },
-    { label: 'focusOffset:', key: 'focusOffset' },
-    { label: 'isBackwards:', key: 'backwards', highlight: true },
-  ];
-
   return (
     <section id="selection" className="demo-section active">
       <div className="demo-header">
@@ -200,10 +184,6 @@ export default function SelectionInspector() {
               className="demo-contenteditable large"
               contentEditable
               suppressContentEditableWarning
-              dangerouslySetInnerHTML={{
-                __html:
-                  '<p>The quick <strong>brown fox</strong> jumps over the <em>lazy dog</em>.</p><p>Try selecting text across multiple elements to see how selection works!</p>',
-              }}
             />
             <div className="selection-actions">
               <button className="btn btn-secondary" onClick={handleBackwardsSelection}>
@@ -223,14 +203,30 @@ export default function SelectionInspector() {
           </div>
           <div className="card-content">
             <div className="state-display">
-              {stateRows.map((row) => (
-                <div key={row.key} className={`state-row ${row.highlight ? 'highlight' : ''}`}>
-                  <span className="state-label">{row.label}</span>
-                  <span className={`state-value ${changed[row.key] ? 'changed' : ''}`}>
-                    {selState[row.key]}
-                  </span>
-                </div>
-              ))}
+              <div className="state-row">
+                <span className="state-label">type:</span>
+                <span className="state-value" ref={typeRef}>&quot;None&quot;</span>
+              </div>
+              <div className="state-row">
+                <span className="state-label">anchorNode:</span>
+                <span className="state-value" ref={anchorNodeRef}>null</span>
+              </div>
+              <div className="state-row">
+                <span className="state-label">anchorOffset:</span>
+                <span className="state-value" ref={anchorOffsetRef}>0</span>
+              </div>
+              <div className="state-row">
+                <span className="state-label">focusNode:</span>
+                <span className="state-value" ref={focusNodeRef}>null</span>
+              </div>
+              <div className="state-row">
+                <span className="state-label">focusOffset:</span>
+                <span className="state-value" ref={focusOffsetRef}>0</span>
+              </div>
+              <div className="state-row highlight">
+                <span className="state-label">isBackwards:</span>
+                <span className="state-value" ref={backwardsRef}>false</span>
+              </div>
             </div>
           </div>
         </div>
