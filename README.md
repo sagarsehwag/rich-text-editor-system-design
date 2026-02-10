@@ -103,7 +103,7 @@ Side-by-side animated comparison of **Map + Array** (Draft.js, Slate) vs **Map +
 | [TypeScript 5](https://www.typescriptlang.org/) | Type safety |
 | [Tailwind CSS 4](https://tailwindcss.com/) | Utility-first CSS (with custom CSS variables) |
 
-Zero external UI libraries. Every demo, animation, and visualization is built from scratch with plain React, CSS, and browser APIs.
+Zero external UI libraries. Every demo, animation, and visualization is built from scratch with plain React, CSS, and browser APIs. Fully responsive — works on desktop, tablet, and mobile.
 
 ---
 

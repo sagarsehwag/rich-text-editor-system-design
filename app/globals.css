@@ -81,6 +81,7 @@ body {
     flex-direction: column;
     position: fixed;
     height: 100vh;
+    height: 100dvh;
     left: 0;
     top: 0;
     z-index: 100;
@@ -149,6 +150,81 @@ body {
 }
 
 /* ========================================
+   Sidebar Toggle (Hamburger) Button
+   ======================================== */
+
+.sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 200;
+    width: 44px;
+    height: 44px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 0;
+    transition: background var(--transition-fast);
+}
+
+.sidebar-toggle:hover {
+    background: var(--bg-hover);
+}
+
+.hamburger-line {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--text-primary);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    transform-origin: center;
+}
+
+/* Animate hamburger to X when open */
+.sidebar-toggle.open .hamburger-line:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+.sidebar-toggle.open .hamburger-line:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+}
+
+.sidebar-toggle.open .hamburger-line:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ========================================
+   Sidebar Overlay
+   ======================================== */
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 90;
+    backdrop-filter: blur(2px);
+    animation: overlayFadeIn 0.3s ease;
+}
+
+@keyframes overlayFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* ========================================
    Main Content Area
    ======================================== */
 
@@ -156,6 +232,54 @@ body {
     margin-left: var(--sidebar-width);
     flex: 1;
     padding: var(--content-padding);
+}
+
+/* ========================================
+   Mobile Responsive Sidebar
+   ======================================== */
+
+@media (max-width: 768px) {
+    /* -- Sidebar -- */
+    .sidebar-toggle {
+        display: flex;
+    }
+
+    .sidebar-overlay {
+        display: block;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: none;
+        border-right: none;
+    }
+
+    .sidebar.sidebar-open {
+        transform: translateX(0);
+        box-shadow: none;
+    }
+
+    .sidebar-header {
+        padding: 1.5rem;
+        padding-top: 4.5rem;
+    }
+
+    /* -- Content Area -- */
+    .content {
+        margin-left: 0;
+        padding: 1.25rem;
+        padding-top: 4.5rem;
+        min-width: 0;
+        overflow-x: hidden;
+    }
+
+    .demo-header {
+        max-width: 100%;
+    }
 }
 
 .demo-section {
@@ -215,14 +339,6 @@ body {
 @media (max-width: 1200px) {
     .demo-grid.four-cols {
         grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-
-    .demo-grid.four-cols,
-    .demo-grid.two-cols {
-        grid-template-columns: 1fr;
     }
 }
 
@@ -1732,5 +1848,418 @@ kbd {
     100% {
         opacity: 1;
         transform: translateX(0);
+    }
+}
+
+/* ========================================
+   Responsive: Tablet (max-width: 1024px)
+   Must come AFTER all base rules to override
+   ======================================== */
+
+@media (max-width: 1024px) {
+    .update-loop-diagram {
+        gap: var(--gap-sm);
+    }
+
+    .update-step {
+        min-width: 140px;
+        max-width: 180px;
+        padding: 0.75rem;
+    }
+
+    .update-step.wide {
+        min-width: 200px;
+        max-width: 260px;
+    }
+
+    .shortcut-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ========================================
+   Responsive: Mobile (max-width: 768px)
+   Must come AFTER all base rules to override
+   ======================================== */
+
+@media (max-width: 768px) {
+    /* -- Typography -- */
+    .demo-header h2 {
+        font-size: 1.35rem;
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+
+    .demo-subtitle {
+        font-size: 0.9rem;
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+
+    .card-header h3 {
+        font-size: 0.95rem;
+    }
+
+    /* -- Card Padding -- */
+    .card-content,
+    .card-header,
+    .card-footer {
+        padding: 1rem;
+    }
+
+    /* -- Grids: Stack to single column -- */
+    .demo-grid.four-cols,
+    .demo-grid.two-cols {
+        grid-template-columns: 1fr;
+        gap: var(--gap-md);
+    }
+
+    .demo-grid {
+        margin-bottom: var(--gap-lg);
+    }
+
+    /* Prevent cards from overflowing */
+    .demo-card {
+        overflow: hidden;
+    }
+
+    /* -- Comparison Tables -- */
+    .comparison-table-wrapper,
+    .comparison-table-container {
+        padding: 1rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .comparison-table {
+        font-size: 0.8rem;
+        min-width: 500px;
+    }
+
+    .comparison-table th,
+    .comparison-table td {
+        padding: 0.6rem 0.5rem;
+    }
+
+    /* -- Shortcut Grid (ContentEditable page) -- */
+    .shortcut-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--gap-sm);
+    }
+
+    .shortcut {
+        padding: 0.75rem 0.5rem;
+    }
+
+    /* -- Selection Direction Demo -- */
+    .direction-demo {
+        grid-template-columns: 1fr;
+        gap: var(--gap-md);
+    }
+
+    .visual-diagram {
+        padding: 1rem;
+    }
+
+    .text-with-markers {
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+
+    /* -- Selection Actions -- */
+    .selection-actions {
+        flex-direction: column;
+    }
+
+    .selection-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* -- Approach Comparison (State Model page) -- */
+    .approach-comparison {
+        grid-template-columns: 1fr;
+    }
+
+    .approach pre {
+        font-size: 0.7rem;
+        overflow-x: auto;
+    }
+
+    .formatting-demo-section {
+        padding: 1rem;
+    }
+
+    /* -- Tree Visualization (State Model page) -- */
+    .tree-visualization {
+        padding: 1rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tree {
+        min-width: 300px;
+    }
+
+    .tree-node > span {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.75rem;
+    }
+
+    .tree-children {
+        gap: var(--gap-md);
+    }
+
+    .tree-legend {
+        flex-wrap: wrap;
+        gap: var(--gap-sm);
+        justify-content: center;
+    }
+
+    /* -- Update Loop -- */
+    .update-loop-container {
+        padding: 1rem;
+    }
+
+    .update-loop-controls {
+        flex-wrap: wrap;
+        gap: var(--gap-sm);
+    }
+
+    .speed-control {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .speed-control input[type="range"] {
+        flex: 1;
+    }
+
+    .update-loop-diagram {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--gap-sm);
+    }
+
+    .update-step {
+        min-width: unset;
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .update-step.wide {
+        min-width: unset;
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .flow-arrow {
+        transform: rotate(90deg);
+        font-size: 1.2rem;
+    }
+
+    /* -- Update Loop Comparison -- */
+    .comparison-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .comparison-bad code,
+    .comparison-good code {
+        font-size: 0.7rem;
+        overflow-x: auto;
+        word-break: break-all;
+    }
+
+    /* -- Node Structures -- */
+    .structure-comparison {
+        grid-template-columns: 1fr;
+    }
+
+    .structure-panel {
+        padding: 1rem;
+        overflow: hidden;
+    }
+
+    .panel-header {
+        flex-wrap: wrap;
+        gap: var(--gap-sm);
+    }
+
+    .panel-header h3 {
+        font-size: 1rem;
+    }
+
+    .code-snippet {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .code-snippet pre {
+        font-size: 0.7rem;
+    }
+
+    /* NodeMap diagram - scrollable container */
+    .node-diagram {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .node-map {
+        padding: 0.75rem;
+        min-width: 320px;
+    }
+
+    .map-entry {
+        gap: 0.35rem;
+    }
+
+    .map-entry .key {
+        font-size: 0.7rem;
+        min-width: 38px;
+        flex-shrink: 0;
+    }
+
+    .map-entry .arrow {
+        flex-shrink: 0;
+    }
+
+    .node-box {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.4rem;
+    }
+
+    .children-arr {
+        font-size: 0.6rem;
+        word-break: break-all;
+    }
+
+    /* -- Linked List Visual -- */
+    .linked-visual {
+        padding: var(--gap-md);
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .linked-row.children-row {
+        min-width: 280px;
+        gap: 0.25rem;
+    }
+
+    .linked-node {
+        padding: 0.3rem 0.5rem;
+        font-size: 0.7rem;
+    }
+
+    .linked-node small {
+        font-size: 0.55rem;
+    }
+
+    .horizontal-pointer {
+        font-size: 0.9rem;
+    }
+
+    .vertical-pointer {
+        font-size: 0.65rem;
+    }
+
+    .parent-pointers {
+        gap: 1.5rem;
+        font-size: 0.6rem;
+    }
+
+    /* Operation demo on mobile */
+    .operation-demo h4 {
+        font-size: 0.85rem;
+    }
+
+    .complexity-note {
+        font-size: 0.8rem;
+    }
+
+    /* Comparison table in node structures */
+    .comparison-table-container {
+        overflow-x: auto;
+    }
+
+    .comparison-table-container .comparison-table {
+        min-width: 420px;
+    }
+
+    /* -- Key Insight Box -- */
+    .key-insight {
+        padding: 1.25rem;
+    }
+
+    .key-insight h3 {
+        font-size: 1rem;
+    }
+
+    .key-insight ul {
+        margin-left: 1rem;
+    }
+
+    .key-insight li {
+        font-size: 0.9rem;
+    }
+
+    .key-insight p {
+        font-size: 0.9rem;
+    }
+
+    /* -- Code Output -- */
+    .code-output {
+        font-size: 0.75rem;
+        padding: 0.75rem;
+        max-height: 250px;
+    }
+
+    .code-small {
+        font-size: 0.7rem;
+        padding: 0.5rem;
+    }
+
+    /* -- Badges -- */
+    .badge {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.5rem;
+    }
+
+    /* -- Buttons -- */
+    .btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    /* -- State Display (Selection Inspector) -- */
+    .state-display {
+        padding: 0.75rem;
+    }
+
+    .state-row {
+        flex-direction: column;
+        gap: 0.15rem;
+    }
+
+    .state-label {
+        font-size: 0.75rem;
+    }
+
+    .state-value {
+        font-size: 0.8rem;
+    }
+
+    /* -- Operation Demo -- */
+    .operation-demo {
+        padding: 0.75rem;
+    }
+
+    .op-step {
+        font-size: 0.75rem;
+    }
+
+    /* -- General overflow handling -- */
+    pre {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 }

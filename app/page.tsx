@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Sidebar from './components/layout/Sidebar';
 import RenderingApproaches from './components/demos/RenderingApproaches';
 import ContentEditableDemo from './components/demos/ContentEditableDemo';
@@ -20,12 +20,22 @@ const demoComponents: Record<string, React.ComponentType> = {
 
 export default function Home() {
   const [activeDemo, setActiveDemo] = useState('rendering');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const toggleSidebar = useCallback(() => {
+    setSidebarOpen((prev) => !prev);
+  }, []);
 
   const ActiveComponent = demoComponents[activeDemo];
 
   return (
     <>
-      <Sidebar activeDemo={activeDemo} onNavigate={setActiveDemo} />
+      <Sidebar
+        activeDemo={activeDemo}
+        onNavigate={setActiveDemo}
+        isOpen={sidebarOpen}
+        onToggle={toggleSidebar}
+      />
       <main className="content">
         {ActiveComponent && <ActiveComponent />}
       </main>
